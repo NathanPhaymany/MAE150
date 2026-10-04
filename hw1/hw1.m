@@ -51,7 +51,7 @@ xlabel(ax1, 'x')
 ylabel(ax1, 'y')
 legend(ax1, 'circle radius = 1', 'major axis radius = 2', 'major axis radius = 4', 'major axis radius = 6')
 grid(ax1, 'on')
-p1 = 'see figure 1';
+p1 = 'see figure 1'
 
 
 %----------------------------------------------------------------------------------------------------------
@@ -83,14 +83,20 @@ Ry = @(thetay) [cosd(thetay),   0,   sind(thetay),   0; ...
                -sind(thetay),   0,   cosd(thetay),   0;...
                            0,   0 ,             0,   1];
 
+% Reflection across yz plane
+Refyz = [-1 0 0 0; ...
+         0 1 0 0; ...
+         0 0 1 0; ...
+         0 0 0 1];
 
 s = linspace(0, 12*pi, 1000);
 x = sin(s) .* (exp(cos(s)) - 2*cos(4*s) - sin(0.1 * s).^2);
 y = -cos(s) .* (exp(cos(s)) - 2*cos(4*s) - sin(0.1 * s).^2);
 z = zeros(size(x));
 
-p = [x; y; z; ones(size(x))];
-
+p = [x; y; z; ones(size(x))]
+condition = p(1, :, :, :) > 0;  % Keeps only x > 0 points (to be reflected on yz plane)
+p = p(:, condition);
 
 f2 = figure(2);
 ax2 = axes('Parent', f2);
@@ -112,6 +118,7 @@ yoff = 0;
 
 for t = 0:0.1:10 
     transform_points = T(0, -yoff, 0)*Ry(30*sin(3*pi*t/2))*p;
+    transform_points = [transform_points Refyz*transform_points];
 
     set(h2, 'XData', transform_points(1, :), ...
             'YData', transform_points(2, :), ...
@@ -120,4 +127,12 @@ for t = 0:0.1:10
     yoff = yoff + 0.1;
     pause(0.1);
 end
+p2 = 'See figure 2'
 
+%----------------------------------------------------------------------------------------------------------
+% Part 3
+pin = stlread('pin.STL');
+figure(3);
+trimesh(pin, 'FaceColor', 'none', 'EdgeColor', 'k');
+axis equal;
+p3 = 'See figure 3'
