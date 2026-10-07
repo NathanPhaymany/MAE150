@@ -66,13 +66,13 @@ p1d = normcdf(0.05, p1b, p1c)
 
 %% Problem 2
 
-% files = ['screw.STL', 'handle.STL', 'brace.STL', "wheel.STL"];
+files = ['screw.STL', 'handle.STL', 'brace.STL', "wheel.STL"];
 
-% for i = 1:length(files)
-%     model = stlread(files(i));
-%     figure;
-%     trimesh(model, 'FaceColor', 'none', 'EdgeColor', 'k');
-%     axis equal;
-% end
+for i = 1:length(files)
+    model = stlread(files(i));
+    figure;
+    trimesh(model, 'FaceColor', 'none', 'EdgeColor', 'k');
+    axis equal;
+end
 
-% p2 = 'See figure 2'
+p2 = 'See figure 2'
