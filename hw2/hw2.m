@@ -7,11 +7,11 @@ name = 'Nathan Phaymany';
 id = '20016227';
 hw_num = 2;
 
-%% Plotting Function
+% Plotting Function
 
 histPlot = @(data) histogram(data, 100, 'Normalization', 'pdf');
 
-%% Problem 1
+% Problem 1
 
 rng('default');
 n = 25000;
@@ -37,7 +37,7 @@ histPlot(v);
 
 % Air Foil Area (gaussian)
 ax4 = subplot(2, 6, [7, 9]);
-pd4 = makedist('normal', 'mu', 5, 'sigma', 0.05);
+pd4 = makedist('normal', 'mu', 5, 'sigma', 0.05/3);
 S = random(pd4, [1,n]);
 histPlot(S);
 
@@ -64,7 +64,7 @@ p1c = phat(2)
 p1d = normcdf(0.05, p1b, p1c)
 
 
-%% Problem 2
+% Problem 2
 
 files = ['screw.STL', 'handle.STL', 'brace.STL', "wheel.STL"];
 
