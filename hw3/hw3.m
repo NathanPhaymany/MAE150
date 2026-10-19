@@ -173,34 +173,34 @@ phi = [cam.phi];
 figure(2);
 % Displacement
 ax1 = subplot(5, 1, 1);
-plot(t, dis);
+plot(rad2deg(t), dis);
 ylabel({'displacement', '[mm]'});
 
 % Velocity
 ax2 = subplot(5, 1, 2);
-plot(t, vel);
+plot(rad2deg(t), vel);
 ylabel({'velocity', '[mm/s]'});
 
 % Acceleration
 ax3 = subplot(5, 1, 3);
-plot(t, acc);
+plot(rad2deg(t), acc);
 ylabel({'acceleration', '[mm/s^2]'});
 
 % Jerk
 ax4 = subplot(5, 1, 4);
-plot(t, jerk);
+plot(rad2deg(t), jerk);
 ylabel({'jerk', '[mm/s^3]'});
 
 % Pressure Angle
 ax5 = subplot(5, 1, 5);
-plot(t, rad2deg(phi));
+plot(rad2deg(t), rad2deg(phi));
 ylabel({'\phi', '[degree]'});
 
 ax = [ax1, ax2, ax3, ax4, ax5];
 for i = 1:length(ax)
     box(ax(i), 'on');
     grid(ax(i), 'on');
-    xlim(ax(i), [0 t(end)]);
+    xlim(ax(i), [0 360]);
 end
 
 xlabel('\theta (degree)');
@@ -271,4 +271,16 @@ end
 
 p2b = 'See figure 3'
 
-p2c = ''
+p2c = 'I would not consider this a good design as there exists discontinuities in acceleration before and after the harmonic fall. To solve this issue, it would help to replace the harmonic fall with a 345 polynomial as it contains zero velocity and acceleration at its ends.'
+
+%% Problem 3
+
+model = stlread('barrow.stl');
+figure;
+trimesh(model, 'FaceColor', 'none', 'EdgeColor', 'k');
+axis equal;
+
+model = stlread('wheelbarrow_assembly.stl');
+figure;
+trimesh(model, 'FaceColor', 'none', 'EdgeColor', 'k');
+axis equal;
