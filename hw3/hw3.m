@@ -81,8 +81,8 @@ harmonic = L/2 * (1-cos(pi*theta/beta));
 cycloidal = L * (theta/beta - sin(2*pi*theta/beta)/(2*pi));
 poly345 = L * (10/beta^3 * theta^3 - 15/beta^4 * theta^4 + 6/beta^5 * theta^5);
 
-r_follower = 0.006;
-r_prime = 0.02;
+r_follower = 6;
+r_prime = 20;
 omega = 50*2*pi/60;
 r_base = r_prime - r_follower;
 dt = deg2rad(2);
@@ -193,7 +193,7 @@ ylabel({'jerk', '[mm/s^3]'});
 
 % Pressure Angle
 ax5 = subplot(5, 1, 5);
-plot(t, phi);
+plot(t, rad2deg(phi));
 ylabel({'\phi', '[degree]'});
 
 ax = [ax1, ax2, ax3, ax4, ax5];
@@ -209,7 +209,8 @@ p2a = 'See figure 2'
 
 
 % Part b
-figure(3)
+fig3 = figure(3);
+ax6 = axes(fig3);
 
 x_pitch = (r_prime + dis) .* sin(t);
 y_pitch = (r_prime + dis) .* cos(t);
@@ -231,11 +232,43 @@ pitch_in(2, :) = y_pitch;
 cam_in(:, end) = cam_in(:, 1);
 pitch_in(:, end) = pitch_in(:, 1);
 
-plot(x_base, y_base, '--g', x_pitch, y_pitch, '-.r', x_cam, y_cam, '-k', x_prime, y_prime, ':g');
+for nt = 1:length(t)
+    cla(ax6);
+    plot(ax6, x_prime*1000,y_prime*1000,'b-'); hold on;   % prime circle
+    plot(ax6, x_base*1000,y_base*1000,'b--');             % base circle
 
-hold on; axis equal; box on; grid on;
-xlabel('x [mm]');
-ylabel('y [mm]');
-legend('base', 'pitch', 'cam', 'prime');
+    % Animate cam motion by rotating cam contour and pitch curve around cam center
+    rot_angle = t(nt);                               
+    R = [cos(rot_angle)  -sin(rot_angle); ...        % rotation matrix
+            sin(rot_angle)  cos(rot_angle) ]; ...
+
+    for n = 1:size(cam_in,2)
+        cam_out(:,n) = R*cam_in(:,n);              % rotated cam contour
+        pitch_out(:,n) = R*pitch_in(:,n);          % rotatated pitch curve
+    end
+
+    patch(ax6, cam_out(1,:)*1000, cam_out(2,:)*1000,'r','FaceAlpha',0.5);
+    plot(ax6, pitch_out(1,:)*1000,pitch_out(2,:)*1000,'--k');
+
+    tt = deg2rad(0:360);
+    x_follower = r_follower*cos(tt);
+    y_follower = r_follower*sin(tt) + dis(nt) + r_prime;  % translate follower motion
+    patch(ax6, x_follower*1000,y_follower*1000,'k','FaceAlpha',0.5);
+
+    axis(ax6, 'equal'); box(ax6, 'on'); grid(ax6, 'on');
+    xlabel(ax6, 'x [mm]');
+    ylabel(ax6, 'y [mm]');
+    title(ax6, sprintf('theta = %4.1f degree',rad2deg(t(nt))));
+    legend(ax6, 'prime', 'base', 'cam', 'pitch', 'follower');
+
+    tmp = max(sqrt(x_pitch.^2 + y_pitch.^2)) + 2*r_follower;
+    axis(ax6, [-1 1 -1 1]*tmp*1000);
+
+    x_center = 0.5*r_base*cos(tt);       % cam center
+    y_center = 0.5*r_base*sin(tt);         
+    drawnow
+end
 
 p2b = 'See figure 3'
+
+p2c = ''
