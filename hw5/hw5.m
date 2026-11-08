@@ -26,12 +26,14 @@ node(n).pos = [0, 0];                 % x-, y- coordinates
 node(n).dis =  [0,  0];                 % x-, y- comp. of displacement: NaN = unknown
 node(n).force = [NaN, NaN];                % x-, y- comp. of force: NaN = unknown
 
+% Botton Nodes
 for n = 2:6
     node(n).pos = [0.05*(n-1), 0];
     node(n).dis = [NaN, NaN];
     node(n).force = [0, -P];
 end
 
+% Top Nodes
 for n = 12:-1:8
     node(n).pos = [0.05*(13-n), 0.05*3^0.5];
     node(n).dis = [NaN, NaN];
@@ -45,12 +47,14 @@ node(n).force = [NaN, NaN];
 
 % Elements
 
+% Exterior Elements
 for n = 1:11
     element(n).node = [n, n+1];
     element(n).E = E;
     element(n).A = A;
 end
 
+% Interior Elements
 element_nodes = dictionary( ...
     12, {[1, 12]}, ...
     13, {[2, 12]}, ...
@@ -61,9 +65,7 @@ element_nodes = dictionary( ...
     18, {[5, 10]}, ...
     19, {[5, 9]}, ...
     20, {[5, 8]}, ...
-    21, {[6, 8]} ...
-);
-
+    21, {[6, 8]} );
 for n = 1:numel(keys(element_nodes))
     index = 11+n;
     element(index).node = element_nodes{index};
@@ -85,7 +87,6 @@ function [newNode, newElement] = FEA(node, element, DOF)
         -cos(beta)*sin(beta), -sin(beta)^2, -cos(beta)*sin(beta), sin(beta)^2];
 
     for n = 1:numel(element)
-    
         dx = node(element(n).node(2)).pos(1) - node(element(n).node(1)).pos(1);
         dy = node(element(n).node(2)).pos(2) - node(element(n).node(1)).pos(2);
         % Compute length L
@@ -106,14 +107,12 @@ function [newNode, newElement] = FEA(node, element, DOF)
         K_global_e(index(2):index(2)+1, index(1):index(1)+1) = element(n).K_e(3:4,1:2);
 
         element(n).K_global_e = K_global_e;
-
     end
 
     % Assemble global stiffness matrix
     K_global = zeros( DOF * numel(node) );
     for n = 1:numel(element)
         K_global = K_global + element(n).K_global_e;
-
     end
 
     % Apply boundary conditions to reduce the equilibrium equations
@@ -128,22 +127,13 @@ function [newNode, newElement] = FEA(node, element, DOF)
     % Identify row and column to keep: 
     % where the displacement is unknown (i.e. set to NaN during the setup)
     row_col_to_keep = find(isnan(U_global));
-
-
-    % Reduce global stiffness matrix
     K_reduced = K_global(row_col_to_keep, row_col_to_keep);
-
-    % Reduce force vector
     F_reduced = F_global(row_col_to_keep, 1);
 
     %% Solve equilibrium equations
-    % Solve for reduced global displacement vector
+
     U_reduced = K_reduced \ F_reduced;
-
-    % Update global displacement vector
     U_global(row_col_to_keep) = U_reduced;
-
-    % Update global force vector
     F_global = K_global * U_global;
 
     %% Postprocessing 
@@ -168,8 +158,7 @@ end
 
 [node, element] = FEA(node_original, element_original, DOF);
 
-%% Figure 1: Plot orignal and deformed trusses
-%figure('unit','centimeters','Position',[0.5 1 10 6]); 
+%% Figure 1: Plot orignal and deformed trusses 
 figure(1);
 hold on;
 
@@ -210,10 +199,12 @@ p1a = node(4).dis
 p1b = element(1).stress
 p2c = 'See figure 1'
 
+% Part D
 i = 1;
 for A = 0.05E-4:0.05E-4:0.5E-4
     node = node_original;
     element = element_original;
+
     for n = 1:numel(element)
         element(n).A = A;
     end
@@ -229,3 +220,5 @@ xlabel('Area A [cm^2]');
 ylabel('Maximum Stress [GPa]');
 title('Maximum Stress vs Area');
 grid on;
+
+p1d = 'See figure 2'
